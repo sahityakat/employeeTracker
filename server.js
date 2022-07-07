@@ -29,7 +29,7 @@ const questions = [
       "Add a department",
       "Add a role",
       "Add an employee",
-      "Update an employee role"
+      "Update employee role"
     ]
   }
 ]
@@ -68,6 +68,9 @@ function selectAction(data) {
   }
   if (data.actions === "Add an employee") {
     addEmployee();
+  }
+  if (data.actions === "Update employee role") {
+    updateEmployee();
   }
 }
 
@@ -119,7 +122,15 @@ function addDepartment() {
         type: "input",
         name: "deptName",
         message: "What is the name of the department?",
-      },
+        validate: nameInput => {
+          if (nameInput) {
+              return false;    
+          } else {
+            console.log('Please enter department name');
+            return false;
+          }
+        }
+      }
     ])
     .then((answers) => {
       const sql = `INSERT INTO department (name)
@@ -146,45 +157,59 @@ function addDepartment() {
 }
 
 function addRole() {
-  console.log('addRole');
   const deptQuery = `SELECT id,name FROM department`;
-  console.log('deptQuery',deptQuery);
+
   db.query(deptQuery, (err, result) => {
     if (err) {
       console.log("Error occured getting all departments", err);
       return;
     }
-    console.log('result',result);
-    let departments = [result];
-    console.log('departments',departments);
-    const choices = departments.map(({ id, name }) => ({
-      key: name,
-      value: id,
-    }));
-    console.log('choices',choices);
+
+    let departments = result;
+    const choices = departments.map(({name, id}) => ({
+       name, id
+     }));
+      console.log('choices',choices);
+      console.log('choices',choices.map['Service']);
     inquirer
       .prompt([
         {
           type: "input",
           name: "roleName",
           message: "What is the name of the role?",
+          validate: nameInput => {
+            if (nameInput) {
+              return true;
+            } else {
+              console.log('Please enter role name');
+              return false;
+            }
+          }
         },
         {
           type: "input",
           name: "roleSalary",
           message: "What is the salary of the role?",
+          validate: salaryInput => {
+            if (salaryInput) {
+                return true;    
+            } else {
+              console.log('Please enter salary');
+              return false;
+            }
+          }
         },
         {
           type: "list",
           name: "deptId",
           message: "What is the name of the department?",
-          choices: choices,
-        },
+          choices: choices
+        }
       ])
       .then((answers) => {
         const roleSql = `INSERT INTO role (title,salary,department_id)
         VALUES (?,?,?)`;
-
+        console.log('answersanswers',answers);
         const roleParams = [
           answers.roleName,
           answers.roleSalary,
@@ -212,20 +237,19 @@ function addEmployee() {
       console.log("Error occured getting all roles", err);
       return;
     }
-    let roles = [rows];
-    const roleChoices = roles.map(({ id, title }) => ({
-      name: title,
-      value: id,
+    let roles = rows;
+    const roleChoices = roles.map(({ title,id }) => ({
+      title, id
     }));
     db.query(empSql, (err, result) => {
       if (err) {
         console.log("Get employees error", err);
         return;
       }
-      let employees = [result];
-      const empChoices = employees.map(({ id, full_name }) => ({
-        name: full_name,
-        value: id,
+      let employees = result;
+      console.log('roleChoices',roleChoices);
+      const empChoices = employees.map(({ full_name,id }) => ({
+        full_name, id
       }));
       inquirer
       .prompt([
@@ -240,18 +264,13 @@ function addEmployee() {
           message: "What is the employee's last name?",
         },
         {
-          type: "input",
-          name: "empRole",
-          message: "What is the employee's role?",
-        },
-        {
-          type: "input",
+          type: "list",
           name: "empRoleId",
           message: "What is the employee's role?",
           choices: roleChoices
         },
         {
-          type: "input",
+          type: "list",
           name: "empManagerId",
           message: "Who is the employee's manager?",
           choices: empChoices
@@ -276,13 +295,63 @@ function addEmployee() {
 });
 }
 
+function updateEmployee() {
+  const empSql = `SELECT id,CONCAT(first_name,' ',last_name) AS full_name,role_id FROM employee`;
+  const roleSql = `SELECT id,title FROM role`;
+
+  db.query(roleSql, (err, rows) => {
+    if (err) {
+      console.log("There was an error getting roles", err);
+      return;
+    }
+    let roles = rows;
+    const roleChoices = roles.map(({ title,id }) => ({
+      title, id
+    }));
+    db.query(empSql, (err, result) => {
+      if (err) {
+        console.log("Get employees error", err);
+        return;
+      }
+      let employees = result;
+      const empChoices = employees.map(({ full_name,id }) => ({
+        full_name, id
+      }));
+      inquirer
+      .prompt([
+        {
+          type: "list",
+          name: "empId",
+          message: "Which employee's role do you want to update?",
+          choices: empChoices
+        },
+        {
+          type: "list",
+          name: "roleId",
+          message: "Which role do you want to update it to?",
+          choices: roleChoices
+        },
+      ])
+      .then((answers) => {
+        const empSql = `INSERT INTO employee (first_name,last_name,role_id,manager_id)
+        VALUES (?,?,?,?)`;
+    
+        const empParams = [answers.empFirstName, answers.empLastName, answers.empRoleId, answers.empManagerId];
+    
+        db.query(empSql, empParams, (err, result) => {
+          if (err) {
+            console.log("Add department error", err);
+            return;
+          }
+          console.log("Added ", answers.roleName, " to the database");
+          init();
+        });
+    });
+    })
+  });
+
+}
 // Function call to initialize app
 init();
 
 
-[ 
-  [ 
-    { id: 1, name: 'Sales' }, 
-    { id: 2, name: 'Service' } 
-  ] 
-]
