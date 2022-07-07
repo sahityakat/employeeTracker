@@ -1,15 +1,15 @@
-# Note Taker
-This is Weekly Challenge 12 to build a companies employee database
+# Employee Tracker
+This is Weekly Challenge 12 to build an employee database for a company
 
 ## Description
 Built a command line application that enables users to add employee data and also retrieve the stored data from database
 
 ## Languages Used
-Node.js
+Node.js  
 MySQL
 
 ## Application and Packages
-inquirer
+inquirer  
 console.table  
 
 ## User Story
