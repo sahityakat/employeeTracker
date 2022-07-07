@@ -1,21 +1,6 @@
 const db = require("./db/connection");
 const cTable = require("console.table");
 const inquirer = require("inquirer");
-//const fs = require("fs");
-//const questions = require("./models/questions");
-//const express = require('express');
-//const PORT = process.env.PORT || 3001;
-//const app = express();
-
-// Why undefined in the response when viewing all departments/roles?
-// Display questions again after responding to a question
-// Validations
-//* Add employee
-//* Is the approach right? What if emp Manager is not selected?
-
-// Express middleware
-//app.use(express.urlencoded({ extended: false }));
-//app.use(express.json());
 
 const questions = [
   {
@@ -38,7 +23,6 @@ function init() {
   inquirer
     .prompt(questions)
     .then((answers) => {
-      console.log("answers", answers);
       selectAction(answers);
     })
     .catch((error) => {
@@ -124,7 +108,7 @@ function addDepartment() {
         message: "What is the name of the department?",
         validate: nameInput => {
           if (nameInput) {
-              return false;    
+              return true;    
           } else {
             console.log('Please enter department name');
             return false;
@@ -207,7 +191,6 @@ function addRole() {
       .then((answers) => {
         const roleSql = `INSERT INTO role (title,salary,department_id)
         VALUES (?,?,?)`;
-        console.log('answersanswers',answers);
         const roleParams = [
           answers.roleName,
           answers.roleSalary,
@@ -282,7 +265,7 @@ function addEmployee() {
             console.log("Add department error", error);
             return;
           }
-          console.log("Added ", answers.roleName, " to the database");
+          console.log("Added ", answers.empFirstName, " ",answers.empLastName, " to the database");
           init();
         });
     });
