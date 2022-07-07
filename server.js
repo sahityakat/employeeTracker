@@ -87,7 +87,10 @@ function showRoles() {
 }
 
 function showEmployees() {
-  const sql = `SELECT * FROM employee`;
+  const sql = `SELECT employee.*,role.title,role.salary,role.department_id,department.name AS department_name 
+                FROM employee e
+                LEFT JOIN role ON e.role_id = role.id
+                LEFT JOIN department ON role.department_id = department.id;`;
 
   db.query(sql, (err, rows) => {
     if (err) {
