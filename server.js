@@ -87,11 +87,12 @@ function showRoles() {
 }
 
 function showEmployees() {
-  const sql = `SELECT employee.*,role.title,role.salary,role.department_id,department.name AS department_name 
-                FROM employee e
-                LEFT JOIN role ON e.role_id = role.id
-                LEFT JOIN department ON role.department_id = department.id;`;
-
+  const sql = `SELECT employee.id, employee.first_name, employee.last_name, role.title, department.name AS department_name, role.salary, CONCAT(manager.first_name, ' ', manager.last_name) AS manager 
+                FROM employee 
+                LEFT JOIN role on employee.role_id = role.id 
+                LEFT JOIN department on role.department_id = department.id 
+                LEFT JOIN employee manager on manager.id = employee.manager_id;`;
+                
   db.query(sql, (err, rows) => {
     if (err) {
       console.log("There was an error fetching employees", err);
