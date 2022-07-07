@@ -138,7 +138,7 @@ function addDepartment() {
 
       const params = answers.deptName;
 
-      db.query(sql, params, (err, result) => {
+      db.query(sql, params, (err) => {
         if (err) {
           console.log("Add department error", err);
           return;
@@ -167,10 +167,8 @@ function addRole() {
 
     let departments = result;
     const choices = departments.map(({name, id}) => ({
-       name, id
+      name, value: id
      }));
-      console.log('choices',choices);
-      console.log('choices',choices.map['Service']);
     inquirer
       .prompt([
         {
@@ -232,24 +230,21 @@ function addEmployee() {
   const roleSql = `SELECT id,title FROM role`;
   const empSql = `SELECT id,CONCAT(first_name,' ',last_name) AS full_name FROM employee`;
 
-  db.query(roleSql, (err, rows) => {
-    if (err) {
-      console.log("Error occured getting all roles", err);
+  db.query(roleSql, (err1, rows) => {
+    if (err1) {
+      console.log("Error occured getting all roles", err1);
       return;
     }
-    let roles = rows;
-    const roleChoices = roles.map(({ title,id }) => ({
-      title, id
+    const roleChoices = rows.map(({ title,id }) => ({
+      name: title, value: id
     }));
-    db.query(empSql, (err, result) => {
-      if (err) {
-        console.log("Get employees error", err);
+    db.query(empSql, (empErr, result) => {
+      if (empErr) {
+        console.log("Get employees error", empErr);
         return;
       }
-      let employees = result;
-      console.log('roleChoices',roleChoices);
-      const empChoices = employees.map(({ full_name,id }) => ({
-        full_name, id
+      const empChoices = result.map(({ full_name,id }) => ({
+        name: full_name, value: id
       }));
       inquirer
       .prompt([
@@ -282,9 +277,9 @@ function addEmployee() {
     
         const empParams = [answers.empFirstName, answers.empLastName, answers.empRoleId, answers.empManagerId];
     
-        db.query(empSql, empParams, (err, result) => {
-          if (err) {
-            console.log("Add department error", err);
+        db.query(empSql, empParams, (error) => {
+          if (error) {
+            console.log("Add department error", error);
             return;
           }
           console.log("Added ", answers.roleName, " to the database");
@@ -296,26 +291,26 @@ function addEmployee() {
 }
 
 function updateEmployee() {
-  const empSql = `SELECT id,CONCAT(first_name,' ',last_name) AS full_name,role_id FROM employee`;
+  const empSql = `SELECT id,CONCAT(first_name,' ',last_name) AS full_name FROM employee`;
   const roleSql = `SELECT id,title FROM role`;
 
-  db.query(roleSql, (err, rows) => {
-    if (err) {
-      console.log("There was an error getting roles", err);
+  db.query(roleSql, (err1, rows) => {
+    if (err1) {
+      console.log("There was an error getting roles", err1);
       return;
     }
     let roles = rows;
     const roleChoices = roles.map(({ title,id }) => ({
-      title, id
+      name: title, value: id
     }));
-    db.query(empSql, (err, result) => {
-      if (err) {
-        console.log("Get employees error", err);
+    db.query(empSql, (err2, result) => {
+      if (err2) {
+        console.log("Get employees error", err2);
         return;
       }
       let employees = result;
       const empChoices = employees.map(({ full_name,id }) => ({
-        full_name, id
+        name: full_name, value: id
       }));
       inquirer
       .prompt([
@@ -333,17 +328,15 @@ function updateEmployee() {
         },
       ])
       .then((answers) => {
-        const empSql = `INSERT INTO employee (first_name,last_name,role_id,manager_id)
-        VALUES (?,?,?,?)`;
+        const empSql = `UPDATE employee SET role_id = ? WHERE id = ?`;    
+        const empParams = [answers.roleId,answers.empId];
     
-        const empParams = [answers.empFirstName, answers.empLastName, answers.empRoleId, answers.empManagerId];
-    
-        db.query(empSql, empParams, (err, result) => {
-          if (err) {
-            console.log("Add department error", err);
+        db.query(empSql, empParams, (err3) => {
+          if (err3) {
+            console.log("Add department error", err3);
             return;
           }
-          console.log("Added ", answers.roleName, " to the database");
+          console.log("Updated employee role");
           init();
         });
     });
