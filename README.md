@@ -46,10 +46,6 @@ THEN I am prompted to select an employee to update and their new role and this i
 
 [Link to walkthrough video](https://drive.google.com/file/d/1TQ1TVZ0BO-KAIJngwEACGJvoHwYsRrwp/view)
 
-## Link to deployed application
-
-[Github Repository URL](https://github.com/sahityakat/employeeTracker)
-
 ## Resources
 
 1. [inquirer](https://www.npmjs.com/package/inquirer)
